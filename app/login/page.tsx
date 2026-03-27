@@ -22,9 +22,9 @@ export default function LoginPage() {
         i++
       } else {
         clearInterval(timer)
-        setTimeout(() => setShowInput(true), 500)
+        setTimeout(() => setShowInput(true), 100)
       }
-    }, 38)
+    }, 12)
     return () => clearInterval(timer)
   }, [])
 
