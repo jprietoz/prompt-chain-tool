@@ -23,7 +23,7 @@ export async function POST(req: Request) {
   const db = createAdminClient()
   const { data, error } = await db
     .from('humor_flavors')
-    .insert({ slug: slug.trim(), description: description ?? null })
+    .insert({ slug: slug.trim(), description: description ?? null, created_by_user_id: user.id })
     .select()
     .single()
   if (error) return NextResponse.json({ error: error.message }, { status: 500 })
