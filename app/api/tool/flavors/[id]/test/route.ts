@@ -30,7 +30,7 @@ export async function POST(req: Request, { params }: { params: Promise<{ id: str
   // Create an image record first to get an imageId
   const { data: imageRecord, error: imageError } = await db
     .from('images')
-    .insert({ url: image_url, created_by: user.id })
+    .insert({ url: image_url })
     .select('id')
     .single()
 
