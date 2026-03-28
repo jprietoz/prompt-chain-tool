@@ -68,7 +68,12 @@ export default function NewStepPage({ params }: { params: Promise<{ id: string }
         <span>/</span>
         <span className="text-white">New Step</span>
       </div>
-      <h1 className="text-2xl font-bold text-white mb-6">Add Pipeline Step</h1>
+      <h1 className="text-2xl font-bold text-white mb-3">Add Pipeline Step</h1>
+      <p className="text-sm mb-6" style={{ color: 'var(--text-muted)' }}>
+        Each step is one LLM call in the flavor&apos;s chain. Steps run in order — for example, step 1 might describe the image,
+        step 2 finds something funny about the description, and step 3 outputs the final captions.
+        Set the system prompt, user prompt, model, and temperature for this step.
+      </p>
       <div className="card">
         <form onSubmit={handleSubmit} className="space-y-5">
           {error && <div className="p-3 rounded-lg text-sm" style={{ background: '#ef44441a', color: '#ef4444', border: '1px solid #ef444433' }}>{error}</div>}

@@ -36,7 +36,11 @@ export default function NewFlavorPage() {
         <span>/</span>
         <span className="text-white">New Flavor</span>
       </div>
-      <h1 className="text-2xl font-bold text-white mb-6">Create Humor Flavor</h1>
+      <h1 className="text-2xl font-bold text-white mb-3">Create Humor Flavor</h1>
+      <p className="text-sm mb-6" style={{ color: 'var(--text-muted)' }}>
+        A humor flavor is a named prompt chain pipeline — a set of ordered LLM steps that transform an input image into captions.
+        Give it a unique slug (e.g. <span className="font-mono">gen-z-sarcasm</span>) and an optional description.
+      </p>
       <div className="card">
         <form onSubmit={handleSubmit} className="space-y-5">
           {error && (

@@ -24,14 +24,25 @@ export default async function FlavorsPage() {
 
   return (
     <div>
-      <div className="mb-8 flex items-center justify-between">
+      <div className="mb-6 flex items-center justify-between">
         <div>
           <h1 className="text-2xl font-bold text-white">Humor Flavors</h1>
           <p className="text-sm mt-1" style={{ color: 'var(--text-muted)' }}>
-            {flavors?.length ?? 0} flavor{flavors?.length !== 1 ? 's' : ''} — each is a named prompt chain pipeline
+            {flavors?.length ?? 0} flavor{flavors?.length !== 1 ? 's' : ''}
           </p>
         </div>
         <Link href="/tool/flavors/new" className="btn-primary">+ New Flavor</Link>
+      </div>
+
+      {/* Definition callout */}
+      <div className="mb-8 p-4 rounded-xl text-sm"
+           style={{ background: 'var(--accent-dim)', border: '1px solid var(--accent-border)' }}>
+        <p className="font-semibold mb-1" style={{ color: 'var(--accent)' }}>What is a humor flavor?</p>
+        <p style={{ color: 'var(--text-muted)' }}>
+          A humor flavor is a set of steps that run in a specific order to create captions from an input image.
+          For example, a flavor might first describe the image in text, then find something funny about it,
+          then output five short, funny captions. Each flavor has its own name (slug), description, and ordered list of pipeline steps.
+        </p>
       </div>
 
       {!flavors?.length ? (

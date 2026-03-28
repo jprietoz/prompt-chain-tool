@@ -44,10 +44,20 @@ export default function TestFlavorPage({ params }: { params: Promise<{ id: strin
       </div>
 
       <h1 className="text-2xl font-bold text-white mb-2">Test Pipeline</h1>
-      <p className="text-sm mb-8" style={{ color: 'var(--text-muted)' }}>
-        Generate captions using the active flavor mix configuration.
-        <Link href="/tool/flavors" className="ml-1" style={{ color: 'var(--accent)' }}>Make sure this flavor is active in Humor Mix.</Link>
+      <p className="text-sm mb-4" style={{ color: 'var(--text-muted)' }}>
+        Paste a publicly accessible image URL below to run it through the caption generation pipeline and see the output.
       </p>
+
+      {/* Definition callout */}
+      <div className="mb-8 p-4 rounded-xl text-sm"
+           style={{ background: 'var(--accent-dim)', border: '1px solid var(--accent-border)' }}>
+        <p className="font-semibold mb-1" style={{ color: 'var(--accent)' }}>How testing works</p>
+        <p style={{ color: 'var(--text-muted)' }}>
+          The image URL is sent to the pipeline, which registers the image and runs it through the active humor flavor mix.
+          Each flavor in the mix executes its steps in order, and the final captions are returned below.
+          This lets you verify that your prompts and step order produce the results you expect before using the flavor in production.
+        </p>
+      </div>
 
       <div className="card mb-6">
         <h2 className="text-sm font-semibold text-white mb-4">Input</h2>

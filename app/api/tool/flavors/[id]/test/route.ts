@@ -1,68 +1,67 @@
 import { NextResponse } from 'next/server'
-import { createAdminClient } from '@/lib/supabase-admin'
 import { assertAdmin } from '@/lib/assert-admin'
+import { createClient } from '@/lib/auth-client-server'
 
-const EXTERNAL_API = 'https://api.almostcrackd.ai'
+const API_BASE = 'https://api.almostcrackd.ai'
+
+async function getToken(): Promise<string | null> {
+  const supabase = await createClient()
+  const { data: { session } } = await supabase.auth.getSession()
+  return session?.access_token ?? null
+}
 
 export async function POST(req: Request, { params }: { params: Promise<{ id: string }> }) {
   const user = await assertAdmin()
   if (!user) return NextResponse.json({ error: 'Unauthorized' }, { status: 401 })
 
+  const token = await getToken()
+  if (!token) return NextResponse.json({ error: 'No session token' }, { status: 401 })
+
   const { id } = await params
-  const body = await req.json()
-  const { image_url } = body
+  const { image_url } = await req.json()
 
   if (!image_url) return NextResponse.json({ error: 'image_url is required' }, { status: 400 })
 
-  const db = createAdminClient()
-
-  // Get the flavor slug
-  const { data: flavor, error: flavorError } = await db
-    .from('humor_flavors')
-    .select('id, slug')
-    .eq('id', id)
-    .single()
-
-  if (flavorError || !flavor) {
-    return NextResponse.json({ error: 'Flavor not found' }, { status: 404 })
+  const authHeaders = {
+    'Authorization': `Bearer ${token}`,
+    'Content-Type': 'application/json',
   }
 
-  // Create an image record first to get an imageId
-  const { data: imageRecord, error: imageError } = await db
-    .from('images')
-    .insert({ url: image_url })
-    .select('id')
-    .single()
-
-  if (imageError) {
-    return NextResponse.json({ error: imageError.message }, { status: 500 })
+  // Step 1: Register the image with the pipeline
+  const registerRes = await fetch(`${API_BASE}/pipeline/upload-image-from-url`, {
+    method: 'POST',
+    headers: authHeaders,
+    body: JSON.stringify({ imageUrl: image_url, isCommonUse: false }),
+  })
+  const registerData = await registerRes.json()
+  if (!registerRes.ok) {
+    return NextResponse.json(
+      { error: registerData.message ?? 'Failed to register image', raw: registerData },
+      { status: registerRes.status }
+    )
   }
 
-  const imageId = imageRecord.id
-
-  // Call external API to generate captions
-  try {
-    const apiRes = await fetch(`${EXTERNAL_API}/captions/generate`, {
-      method: 'POST',
-      headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({
-        image_id: imageId,
-        image_url,
-        humor_flavor_slug: flavor.slug,
-      }),
-    })
-
-    const result = await apiRes.json()
-
-    if (!apiRes.ok) {
-      return NextResponse.json({ error: result.error ?? result.message ?? 'External API error', imageId }, { status: 500 })
-    }
-
-    return NextResponse.json({ imageId, result })
-  } catch (err) {
-    return NextResponse.json({
-      error: err instanceof Error ? err.message : 'Failed to call external API',
-      imageId,
-    }, { status: 500 })
+  const imageId = registerData.imageId ?? registerData.id ?? registerData.image_id
+  if (!imageId) {
+    return NextResponse.json(
+      { error: 'No imageId returned from image registration', raw: registerData },
+      { status: 500 }
+    )
   }
+
+  // Step 2: Generate captions using the active humor_flavor_mix config
+  const captionsRes = await fetch(`${API_BASE}/pipeline/generate-captions`, {
+    method: 'POST',
+    headers: authHeaders,
+    body: JSON.stringify({ imageId }),
+  })
+  const captionsData = await captionsRes.json()
+  if (!captionsRes.ok) {
+    return NextResponse.json(
+      { error: captionsData.message ?? 'Failed to generate captions', raw: captionsData },
+      { status: captionsRes.status }
+    )
+  }
+
+  return NextResponse.json({ imageId, result: captionsData })
 }

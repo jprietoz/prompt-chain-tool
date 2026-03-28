@@ -71,7 +71,7 @@ export default function FlavorStepsPage({ params }: { params: Promise<{ id: stri
         <span className="text-white">Steps</span>
       </div>
 
-      <div className="mb-8 flex items-center justify-between">
+      <div className="mb-6 flex items-center justify-between">
         <div>
           <h1 className="text-2xl font-bold text-white">Pipeline Steps</h1>
           <p className="text-sm mt-1" style={{ color: 'var(--text-muted)' }}>
@@ -86,6 +86,17 @@ export default function FlavorStepsPage({ params }: { params: Promise<{ id: stri
           </Link>
           <Link href={`/tool/flavors/${id}/steps/new`} className="btn-primary text-sm">+ Add Step</Link>
         </div>
+      </div>
+
+      {/* Definition callout */}
+      <div className="mb-8 p-4 rounded-xl text-sm"
+           style={{ background: 'var(--accent-dim)', border: '1px solid var(--accent-border)' }}>
+        <p className="font-semibold mb-1" style={{ color: 'var(--accent)' }}>What is a pipeline step?</p>
+        <p style={{ color: 'var(--text-muted)' }}>
+          Each step is one LLM call in the chain. Steps run in order — the output of an earlier step can feed into the
+          next step&apos;s prompt. A step defines which model to use, the system prompt, the user prompt, and the temperature.
+          Use the ▲ ▼ arrows to reorder steps.
+        </p>
       </div>
 
       {error && (

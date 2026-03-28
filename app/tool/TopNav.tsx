@@ -4,12 +4,24 @@ import { usePathname, useRouter } from 'next/navigation'
 import { useEffect, useState } from 'react'
 import { createClient } from '@/lib/auth-client-browser'
 
-type Theme = 'dark' | 'light'
+type Theme = 'dark' | 'light' | 'system'
+
+const THEME_CYCLE: Theme[] = ['dark', 'light', 'system']
+const THEME_ICON: Record<Theme, string> = { dark: '🌙', light: '☀️', system: '💻' }
+const THEME_LABEL: Record<Theme, string> = { dark: 'Dark', light: 'Light', system: 'System' }
 
 const NAV_ITEMS = [
   { href: '/tool/flavors', label: 'Flavors' },
   { href: '/tool/captions', label: 'Captions' },
 ]
+
+function applyTheme(t: Theme) {
+  if (t === 'system') {
+    document.documentElement.removeAttribute('data-theme')
+  } else {
+    document.documentElement.setAttribute('data-theme', t)
+  }
+}
 
 export default function TopNav({ displayName, userEmail }: { displayName: string; userEmail: string }) {
   const pathname = usePathname()
@@ -20,14 +32,16 @@ export default function TopNav({ displayName, userEmail }: { displayName: string
   useEffect(() => {
     try {
       const stored = localStorage.getItem('pct-theme') as Theme | null
-      setTheme(stored === 'light' ? 'light' : 'dark')
+      const initial: Theme = stored === 'light' ? 'light' : stored === 'system' ? 'system' : 'dark'
+      setTheme(initial)
+      applyTheme(initial)
     } catch {}
   }, [])
 
   const cycleTheme = () => {
-    const next: Theme = theme === 'dark' ? 'light' : 'dark'
+    const next = THEME_CYCLE[(THEME_CYCLE.indexOf(theme) + 1) % THEME_CYCLE.length]
     setTheme(next)
-    document.documentElement.setAttribute('data-theme', next)
+    applyTheme(next)
     try { localStorage.setItem('pct-theme', next) } catch {}
   }
 
@@ -68,10 +82,11 @@ export default function TopNav({ displayName, userEmail }: { displayName: string
         {/* Right side */}
         <div className="flex items-center gap-2">
           <button onClick={cycleTheme}
-            className="w-8 h-8 flex items-center justify-center rounded-lg text-sm transition-colors"
+            className="flex items-center gap-1.5 px-2.5 h-8 rounded-lg text-xs font-medium transition-colors"
             style={{ color: 'var(--text-muted)', background: 'var(--bg-primary)', border: '1px solid var(--border)' }}
-            title={`Theme: ${theme}`}>
-            {theme === 'dark' ? '🌙' : '☀️'}
+            title={`Theme: ${THEME_LABEL[theme]} — click to cycle`}>
+            <span>{THEME_ICON[theme]}</span>
+            <span>{THEME_LABEL[theme]}</span>
           </button>
 
           <div className="relative">

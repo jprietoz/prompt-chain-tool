@@ -37,7 +37,7 @@ export default function CaptionsPage() {
 
   return (
     <div>
-      <div className="mb-8 flex items-center justify-between">
+      <div className="mb-6 flex items-center justify-between">
         <div>
           <h1 className="text-2xl font-bold text-white">Captions</h1>
           <p className="text-sm mt-1" style={{ color: 'var(--text-muted)' }}>
@@ -50,6 +50,17 @@ export default function CaptionsPage() {
           <option value="">All flavors</option>
           {flavors.map(f => <option key={f.id} value={String(f.id)}>{f.slug}</option>)}
         </select>
+      </div>
+
+      {/* Definition callout */}
+      <div className="mb-8 p-4 rounded-xl text-sm"
+           style={{ background: 'var(--accent-dim)', border: '1px solid var(--accent-border)' }}>
+        <p className="font-semibold mb-1" style={{ color: 'var(--accent)' }}>What are captions?</p>
+        <p style={{ color: 'var(--text-muted)' }}>
+          Captions are the text outputs produced by running an image through a humor flavor&apos;s pipeline.
+          Use the dropdown to filter captions by the flavor that generated them.
+          Captions marked <span style={{ color: 'var(--warning)' }}>featured</span> have been highlighted for display.
+        </p>
       </div>
 
       {!filtered.length ? (
