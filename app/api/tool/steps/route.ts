@@ -28,6 +28,7 @@ export async function POST(req: Request) {
   const { data, error } = await db
     .from('humor_flavor_steps')
     .insert({
+      created_by_user_id: user.id,
       humor_flavor_id: Number(humor_flavor_id),
       order_by: Number(order_by) || 1,
       description: description ?? null,
