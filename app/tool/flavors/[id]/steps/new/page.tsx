@@ -15,9 +15,11 @@ export default function NewStepPage({ params }: { params: Promise<{ id: string }
     llm_user_prompt: '',
     llm_model_id: '',
     humor_flavor_step_type_id: '',
+    llm_input_type_id: '',
   })
   const [models, setModels] = useState<{ id: number; name: string }[]>([])
   const [stepTypes, setStepTypes] = useState<{ id: number; slug: string }[]>([])
+  const [inputTypes, setInputTypes] = useState<{ id: number; slug: string }[]>([])
   const [flavorSlug, setFlavorSlug] = useState<string>('')
   const [loading, setLoading] = useState(false)
   const [error, setError] = useState<string | null>(null)
@@ -27,10 +29,12 @@ export default function NewStepPage({ params }: { params: Promise<{ id: string }
       fetch('/api/tool/models').then(r => r.json()),
       fetch('/api/tool/step-types').then(r => r.json()),
       fetch(`/api/tool/flavors/${id}`).then(r => r.json()),
-    ]).then(([m, t, f]) => {
+      fetch('/api/tool/input-types').then(r => r.json()),
+    ]).then(([m, t, f, it]) => {
       setModels(m)
       setStepTypes(t)
       setFlavorSlug(f.slug ?? '')
+      setInputTypes(it)
     }).catch(() => {})
   }, [id])
 
@@ -49,6 +53,7 @@ export default function NewStepPage({ params }: { params: Promise<{ id: string }
           llm_user_prompt: form.llm_user_prompt || null,
           llm_model_id: form.llm_model_id ? Number(form.llm_model_id) : null,
           humor_flavor_step_type_id: form.humor_flavor_step_type_id ? Number(form.humor_flavor_step_type_id) : null,
+          llm_input_type_id: Number(form.llm_input_type_id),
         }),
       })
       const json = await res.json()
@@ -94,6 +99,15 @@ export default function NewStepPage({ params }: { params: Promise<{ id: string }
             </div>
           </div>
 
+          <div>
+            <label className="block text-sm font-medium text-white mb-1.5">Input Type <span style={{ color: 'var(--danger)' }}>*</span></label>
+            <select className="input-field" value={form.llm_input_type_id} required
+              onChange={e => setForm(p => ({ ...p, llm_input_type_id: e.target.value }))}>
+              <option value="">— Select input type —</option>
+              {inputTypes.map(t => <option key={t.id} value={t.id}>{t.slug}</option>)}
+            </select>
+          </div>
+
           <div className="grid grid-cols-2 gap-4">
             <div>
               <label className="block text-sm font-medium text-white mb-1.5">LLM Model</label>
@@ -109,6 +123,9 @@ export default function NewStepPage({ params }: { params: Promise<{ id: string }
                 value={form.llm_temperature}
                 onChange={e => setForm(p => ({ ...p, llm_temperature: e.target.value }))}
                 placeholder="e.g. 0.7" />
+              <p className="mt-1 text-xs" style={{ color: 'var(--text-muted)' }}>
+                Controls randomness. Lower values (e.g. 0.2) make output more focused and predictable; higher values (e.g. 1.2) make it more creative and varied.
+              </p>
             </div>
           </div>
 
@@ -124,6 +141,9 @@ export default function NewStepPage({ params }: { params: Promise<{ id: string }
             <textarea className="input-field resize-y font-mono" value={form.llm_system_prompt}
               onChange={e => setForm(p => ({ ...p, llm_system_prompt: e.target.value }))}
               rows={5} placeholder="System prompt for this step…" />
+            <p className="mt-1 text-xs" style={{ color: 'var(--text-muted)' }}>
+              Sets the persona and instructions for the model. This is the &quot;background briefing&quot; — define the model&apos;s role, tone, and any rules it should always follow for this step.
+            </p>
           </div>
 
           <div>
@@ -131,6 +151,9 @@ export default function NewStepPage({ params }: { params: Promise<{ id: string }
             <textarea className="input-field resize-y font-mono" value={form.llm_user_prompt}
               onChange={e => setForm(p => ({ ...p, llm_user_prompt: e.target.value }))}
               rows={5} placeholder="User prompt for this step…" />
+            <p className="mt-1 text-xs" style={{ color: 'var(--text-muted)' }}>
+              The actual request sent to the model for this step. Use <code className="px-1 rounded" style={{ background: 'var(--bg-secondary)' }}>{'{{variable}}'}</code> placeholders to inject output from previous steps or input data.
+            </p>
           </div>
 
           <div className="flex gap-3 pt-2">
