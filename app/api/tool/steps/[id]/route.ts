@@ -11,7 +11,7 @@ export async function GET(_req: Request, { params }: { params: Promise<{ id: str
     .from('humor_flavor_steps')
     .select(`id, humor_flavor_id, order_by, description, llm_temperature,
              llm_system_prompt, llm_user_prompt, llm_model_id,
-             humor_flavor_step_type_id, llm_input_type_id, created_datetime_utc`)
+             humor_flavor_step_type_id, llm_input_type_id, llm_output_type_id, created_datetime_utc`)
     .eq('id', id)
     .single()
   if (error) return NextResponse.json({ error: error.message }, { status: 500 })
@@ -34,6 +34,7 @@ export async function PUT(req: Request, { params }: { params: Promise<{ id: stri
     llm_model_id,
     humor_flavor_step_type_id,
     llm_input_type_id,
+    llm_output_type_id,
   } = body
 
   if (!humor_flavor_id) return NextResponse.json({ error: 'humor_flavor_id is required' }, { status: 400 })
@@ -51,6 +52,7 @@ export async function PUT(req: Request, { params }: { params: Promise<{ id: stri
       llm_model_id: llm_model_id ? Number(llm_model_id) : null,
       humor_flavor_step_type_id: humor_flavor_step_type_id ? Number(humor_flavor_step_type_id) : null,
       ...(llm_input_type_id ? { llm_input_type_id: Number(llm_input_type_id) } : {}),
+      ...(llm_output_type_id ? { llm_output_type_id: Number(llm_output_type_id) } : {}),
     })
     .eq('id', id)
     .select()

@@ -17,10 +17,12 @@ export async function POST(req: Request) {
     llm_model_id,
     humor_flavor_step_type_id,
     llm_input_type_id,
+    llm_output_type_id,
   } = body
 
   if (!humor_flavor_id) return NextResponse.json({ error: 'humor_flavor_id is required' }, { status: 400 })
   if (!llm_input_type_id) return NextResponse.json({ error: 'llm_input_type_id is required' }, { status: 400 })
+  if (!llm_output_type_id) return NextResponse.json({ error: 'llm_output_type_id is required' }, { status: 400 })
 
   const db = createAdminClient()
   const { data, error } = await db
@@ -35,6 +37,7 @@ export async function POST(req: Request) {
       llm_model_id: llm_model_id ? Number(llm_model_id) : null,
       humor_flavor_step_type_id: humor_flavor_step_type_id ? Number(humor_flavor_step_type_id) : null,
       llm_input_type_id: Number(llm_input_type_id),
+      llm_output_type_id: Number(llm_output_type_id),
     })
     .select()
     .single()

@@ -6,7 +6,7 @@ import Link from 'next/link'
 interface StepData {
   id: number; humor_flavor_id: number; order_by: number; description: string | null
   llm_temperature: number | null; llm_system_prompt: string | null; llm_user_prompt: string | null
-  llm_model_id: number | null; humor_flavor_step_type_id: number | null; llm_input_type_id: number | null; created_datetime_utc: string
+  llm_model_id: number | null; humor_flavor_step_type_id: number | null; llm_input_type_id: number | null; llm_output_type_id: number | null; created_datetime_utc: string
 }
 
 export default function EditStepPage({ params }: { params: Promise<{ id: string }> }) {
@@ -15,12 +15,13 @@ export default function EditStepPage({ params }: { params: Promise<{ id: string 
   const [step, setStep] = useState<StepData | null>(null)
   const [form, setForm] = useState({
     humor_flavor_id: '', order_by: '1', description: '', llm_temperature: '',
-    llm_system_prompt: '', llm_user_prompt: '', llm_model_id: '', humor_flavor_step_type_id: '', llm_input_type_id: '',
+    llm_system_prompt: '', llm_user_prompt: '', llm_model_id: '', humor_flavor_step_type_id: '', llm_input_type_id: '', llm_output_type_id: '',
   })
   const [flavors, setFlavors] = useState<{ id: number; slug: string }[]>([])
   const [models, setModels] = useState<{ id: number; name: string }[]>([])
   const [stepTypes, setStepTypes] = useState<{ id: number; slug: string }[]>([])
   const [inputTypes, setInputTypes] = useState<{ id: number; slug: string }[]>([])
+  const [outputTypes, setOutputTypes] = useState<{ id: number; slug: string }[]>([])
   const [loading, setLoading] = useState(true)
   const [saving, setSaving] = useState(false)
   const [deleting, setDeleting] = useState(false)
@@ -34,12 +35,14 @@ export default function EditStepPage({ params }: { params: Promise<{ id: string 
       fetch('/api/tool/models').then(r => r.json()),
       fetch('/api/tool/step-types').then(r => r.json()),
       fetch('/api/tool/input-types').then(r => r.json()),
-    ]).then(([stepData, f, m, t, it]: [StepData, typeof flavors, typeof models, typeof stepTypes, typeof inputTypes]) => {
+      fetch('/api/tool/output-types').then(r => r.json()),
+    ]).then(([stepData, f, m, t, it, ot]: [StepData, typeof flavors, typeof models, typeof stepTypes, typeof inputTypes, typeof outputTypes]) => {
       setStep(stepData)
       setFlavors(f)
       setModels(m)
       setStepTypes(t)
       setInputTypes(it)
+      setOutputTypes(ot)
       setForm({
         humor_flavor_id: String(stepData.humor_flavor_id ?? ''),
         order_by: String(stepData.order_by ?? 1),
@@ -50,6 +53,7 @@ export default function EditStepPage({ params }: { params: Promise<{ id: string 
         llm_model_id: stepData.llm_model_id != null ? String(stepData.llm_model_id) : '',
         humor_flavor_step_type_id: stepData.humor_flavor_step_type_id != null ? String(stepData.humor_flavor_step_type_id) : '',
         llm_input_type_id: stepData.llm_input_type_id != null ? String(stepData.llm_input_type_id) : '',
+        llm_output_type_id: stepData.llm_output_type_id != null ? String(stepData.llm_output_type_id) : '',
       })
       setLoading(false)
     }).catch(() => setLoading(false))
@@ -72,6 +76,7 @@ export default function EditStepPage({ params }: { params: Promise<{ id: string 
           llm_model_id: form.llm_model_id ? Number(form.llm_model_id) : null,
           humor_flavor_step_type_id: form.humor_flavor_step_type_id ? Number(form.humor_flavor_step_type_id) : null,
           llm_input_type_id: form.llm_input_type_id ? Number(form.llm_input_type_id) : null,
+          llm_output_type_id: form.llm_output_type_id ? Number(form.llm_output_type_id) : null,
         }),
       })
       const json = await res.json()
@@ -144,6 +149,14 @@ export default function EditStepPage({ params }: { params: Promise<{ id: string 
                 onChange={e => setForm(p => ({ ...p, llm_input_type_id: e.target.value }))}>
                 <option value="">— Select input type —</option>
                 {inputTypes.map(t => <option key={t.id} value={t.id}>{t.slug}</option>)}
+              </select>
+            </div>
+            <div>
+              <label className="block text-sm font-medium text-white mb-1.5">Output Type <span style={{ color: 'var(--danger)' }}>*</span></label>
+              <select className="input-field" value={form.llm_output_type_id} required
+                onChange={e => setForm(p => ({ ...p, llm_output_type_id: e.target.value }))}>
+                <option value="">— Select output type —</option>
+                {outputTypes.map(t => <option key={t.id} value={t.id}>{t.slug}</option>)}
               </select>
             </div>
           </div>
