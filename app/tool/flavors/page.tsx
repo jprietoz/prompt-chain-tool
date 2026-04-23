@@ -1,5 +1,6 @@
 import { createAdminClient } from '@/lib/supabase-admin'
 import Link from 'next/link'
+import DuplicateFlavorButton from './DuplicateFlavorButton'
 
 export const dynamic = 'force-dynamic'
 
@@ -92,6 +93,7 @@ export default async function FlavorsPage() {
                           style={{ background: 'rgba(16,185,129,0.1)', color: '#10b981', border: '1px solid rgba(16,185,129,0.3)' }}>
                       Test
                     </Link>
+                    <DuplicateFlavorButton id={f.id} slug={f.slug} />
                     <Link href={`/tool/flavors/${f.id}`}
                           className="text-xs px-3 py-1.5 rounded-lg font-medium transition-all"
                           style={{ background: 'var(--accent-dim)', color: 'var(--accent)', border: '1px solid var(--accent-border)' }}>
